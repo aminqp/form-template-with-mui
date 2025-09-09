@@ -1,31 +1,17 @@
 import { useState } from "react";
+import { Button, Grid, Stack, Typography } from "@mui/material";
 import {
-  Button,
-  FormControlLabel,
-  Checkbox as MuiCheckbox,
-  Stack,
-  Typography,
-} from "@mui/material";
-import {
-  Autocomplete,
-  AutocompleteData,
   Checkboxes,
-  CheckboxData,
   Select,
-  SelectData,
   Radios,
-  RadioData,
-  Switches,
-  TimePicker,
   makeValidate,
   makeRequired,
   TextField,
   Debug,
-  SwitchData,
 } from "mui-rff";
-import type { FormSubscription, FormApi } from "final-form";
+import type { FormApi } from "final-form";
 import { Form } from "react-final-form";
-import * as Yup from "yup";
+import { schema } from './yup'
 
 enum INPUT_NAMES {
   EMAIL = "email",
@@ -38,7 +24,7 @@ enum INPUT_NAMES {
 const INPUT_LABLE_MAP = Object.freeze({
   [INPUT_NAMES.EMAIL]: "Email",
   [INPUT_NAMES.PASSWORD]: "Password",
-  [INPUT_NAMES.TERMS]: "Terms & Condirions",
+  [INPUT_NAMES.TERMS]: "Terms & Conditions",
   [INPUT_NAMES.AGE]: "Select Your Age",
   [INPUT_NAMES.GENDER]: "Gender",
 });
@@ -75,19 +61,11 @@ const GENDER_OPTIONS = [
 
 interface FormData {
   age: string;
-  email: string; //hello
+  email: string;
   gender: string;
-  password: string; //hidden
+  password: string;
   terms: boolean;
 }
-
-const schema = Yup.object().shape({
-  age: Yup.string().required(),
-  email: Yup.string().required(),
-  gender: Yup.string().required(),
-  password: Yup.string().required(),
-  terms: Yup.boolean().oneOf([true], "please accept the terms").required(),
-});
 
 const validate = makeValidate(schema);
 const required = makeRequired(schema);
@@ -99,13 +77,15 @@ export default function App() {
 
   const initialValues: FormData = {
     age: "",
-    email: "Your email address",
+    email: "",
     gender: "",
     password: "",
     terms: false,
   };
 
   const subscription = { submitting: true };
+  const error = "validation error";
+  const errorId = "error-helper";
 
   const onSubmit = (values: FormData) => {
     setSubmittedValues(values);
@@ -132,40 +112,31 @@ export default function App() {
           autoComplete="new-password"
         >
           <Stack direction="column" spacing={2}>
-            {/* <FormControl required>
-              <InputLabel htmlFor={INPUT_NAMES.EMAIL}>
-                {INPUT_LABLE_MAP[INPUT_NAMES.EMAIL]}
-              </InputLabel>
-              <OutlinedInput
-                id={INPUT_NAMES.EMAIL}
-                label={INPUT_LABLE_MAP[INPUT_NAMES.EMAIL]}
-                aria-describedby={`${INPUT_NAMES.EMAIL}-error-heler`}
-              />
-              <FormHelperText id={`${INPUT_NAMES.EMAIL}-error-heler`}>
-                {INPUT_NAMES.EMAIL} validation error
-              </FormHelperText>
-            </FormControl> */}
-            {/* <FormControl required>
-              <InputLabel htmlFor={INPUT_NAMES.PASSWORD}>
-                {INPUT_LABLE_MAP[INPUT_NAMES.PASSWORD]}
-              </InputLabel>
-              <OutlinedInput
-                type="password"
-                id={INPUT_NAMES.PASSWORD}
-                label={INPUT_LABLE_MAP[INPUT_NAMES.PASSWORD]}
-                aria-describedby={`${INPUT_NAMES.PASSWORD}-error-heler`}
-              />
-              <FormHelperText id={`${INPUT_NAMES.PASSWORD}-error-heler`}>
-                {INPUT_NAMES.PASSWORD} validation error
-              </FormHelperText>
-            </FormControl> */}
+            <TextField
+              label={INPUT_LABLE_MAP[INPUT_NAMES.EMAIL]}
+              id={INPUT_NAMES.EMAIL}
+              name={INPUT_NAMES.EMAIL}
+              required={required.email}
+              helperText={`${INPUT_NAMES.EMAIL} ${error}`}
+              aria-describedby={`${INPUT_NAMES.EMAIL}-${errorId}`}
+            />
+            <TextField
+              label={INPUT_LABLE_MAP[INPUT_NAMES.PASSWORD]}
+              id={INPUT_NAMES.PASSWORD}
+              name={INPUT_NAMES.PASSWORD}
+              type="password"
+              autoComplete="new-password"
+              required={required.password}
+              helperText={`${INPUT_NAMES.PASSWORD} ${error}`}
+              aria-describedby={`${INPUT_NAMES.PASSWORD}-${errorId}`}
+            />
             <Select
               label={INPUT_LABLE_MAP[INPUT_NAMES.AGE]}
               id={INPUT_NAMES.AGE}
               name={INPUT_NAMES.AGE}
               data={AGE_OPTIONS}
-              formHelperTextProps={{ id: `${INPUT_NAMES.AGE}-error-heler` }}
-              helperText={`${INPUT_NAMES.AGE} validation error`}
+              formHelperTextProps={{ id: `${INPUT_NAMES.AGE}-${errorId}` }}
+              helperText={`${INPUT_NAMES.AGE} ${error}`}
             />
             <Radios
               label={INPUT_LABLE_MAP[INPUT_NAMES.GENDER]}
@@ -174,15 +145,15 @@ export default function App() {
               data={GENDER_OPTIONS}
               radioGroupProps={{
                 "aria-labelledby": INPUT_LABLE_MAP[INPUT_NAMES.GENDER],
-                "aria-describedby": `${INPUT_NAMES.GENDER}-error-heler`,
+                "aria-describedby": `${INPUT_NAMES.GENDER}-${errorId}`,
                 row: true,
               }}
-              formHelperTextProps={{ id: `${INPUT_NAMES.GENDER}-error-heler` }}
-              helperText={`${INPUT_NAMES.GENDER} validation error`}
+              formHelperTextProps={{ id: `${INPUT_NAMES.GENDER}-${errorId}` }}
+              helperText={`${INPUT_NAMES.GENDER} ${error}`}
             />
             <Checkboxes
               name={INPUT_NAMES.TERMS}
-              label="You Should Accest Our Terms"
+              label="You Should Accept Our Terms"
               data={{
                 label: INPUT_LABLE_MAP[INPUT_NAMES.TERMS],
                 value: true,
@@ -191,40 +162,47 @@ export default function App() {
               formControlLabelProps={{
                 required: required.terms,
               }}
-              formHelperTextProps={{ id: `${INPUT_NAMES.TERMS}-error-heler` }}
-              helperText={`${INPUT_NAMES.TERMS} validation error`}
-              aria-describedby={`${INPUT_NAMES.PASSWORD}-error-heler`}
+              formHelperTextProps={{ id: `${INPUT_NAMES.TERMS}-${errorId}` }}
+              helperText={`${INPUT_NAMES.TERMS} ${error}`}
+              aria-describedby={`${INPUT_NAMES.PASSWORD}-${errorId}`}
             />
-            <Button
-              type="button"
-              variant="contained"
-              onClick={onReset(form)}
-              disabled={submitting}
-            >
-              Reset
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              type="submit"
-              disabled={submitting}
-            >
-              Submit
-            </Button>
-            <Typography>
-              <strong>Form field data</strong>
-            </Typography>
-            <Debug />
-            <Typography>
-              <strong>Submitted data</strong>
-            </Typography>
-            <pre>
-              {JSON.stringify(
-                submittedValues ? submittedValues : {},
-                undefined,
-                2
-              )}
-            </pre>
+            <Grid container spacing={2}>
+              <Grid size={6}>
+                <Button
+                  type="button"
+                  variant="contained"
+                  onClick={onReset(form)}
+                  disabled={submitting}
+                >
+                  Reset
+                </Button>
+              </Grid>
+              <Grid size={6}>
+                <Button variant="contained" type="submit" disabled={submitting}>
+                  Submit
+                </Button>
+              </Grid>
+            </Grid>
+            <Grid container spacing={2}>
+              <Grid size={6}>
+                <Typography>
+                  <strong>Form field data</strong>
+                </Typography>
+                <Debug />
+              </Grid>
+              <Grid size={6}>
+                <Typography>
+                  <strong>Submitted data</strong>
+                </Typography>
+                <pre>
+                  {JSON.stringify(
+                    submittedValues ? submittedValues : {},
+                    undefined,
+                    2
+                  )}
+                </pre>
+              </Grid>
+            </Grid>
           </Stack>
         </form>
       )}
