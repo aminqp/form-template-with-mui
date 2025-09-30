@@ -19,7 +19,7 @@ import {
 import { schema } from "./yup";
 
 interface FormData {
-  age: string;
+  age: number;
   email: string;
   gender: string;
   password: string;
@@ -34,11 +34,11 @@ export default function FinalForm() {
     undefined
   );
 
-  const initialValues: FormData = {
-    age: "",
-    email: "",
-    gender: "",
-    password: "",
+  const initialValues: Partial<FormData> = {
+    age: undefined,
+    email: undefined,
+    gender: undefined,
+    password: undefined,
     terms: false,
   };
 
